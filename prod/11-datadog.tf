@@ -9,6 +9,7 @@ resource "aws_cloudformation_stack" "DatadogIntegration" {
     IAMRoleName = "DatadogIntegrationRole"
     CloudSecurityPostureManagement = false
     DisableMetricCollection = false
+    ExternalId = var.datadog_external_id   # <-- # Added datadog_external_id variable needed to set the External ID for the Datadog AWS integration role
   }
   template_url = "https://${module.s3_bucket_for_output_files.s3_bucket_id}.s3.amazonaws.com/datadog_integration_role.yaml"
 

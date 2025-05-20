@@ -22,15 +22,18 @@ module "rds" {
   subnets              = module.vpc.database_subnets
   enable_http_endpoint = true
 
-  scaling_configuration = [
-    {
-      auto_pause               = true
-      max_capacity             = 16
-      min_capacity             = 1
-      seconds_until_auto_pause = 300
-      timeout_action           = "ForceApplyCapacityChange"
-    }
-  ]
+  # ...existing code...
+  # Remove or comment out this block:
+  # scaling_configuration = [
+  #   {
+  #     auto_pause               = true
+  #     max_capacity             = 16
+  #     min_capacity             = 1
+  #     seconds_until_auto_pause = 300
+  #     timeout_action           = "ForceApplyCapacityChange"
+  #   }
+  # ]
+  # ...existing code...
   tags = {
     Name = "${var.tag_env}-rds"
   }
