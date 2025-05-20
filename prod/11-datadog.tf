@@ -10,7 +10,7 @@ resource "aws_cloudformation_stack" "DatadogIntegration" {
     CloudSecurityPostureManagement = false
     DisableMetricCollection = false
   }
-  template_url = "https://datadog-cloudformation-template-quickstart.s3.amazonaws.com/aws/main_v2.yaml"
+  template_url = "https://${module.s3_bucket_for_output_files.s3_bucket_id}.s3.amazonaws.com/datadog_integration_role.yaml"
 
   lifecycle {
     ignore_changes = [

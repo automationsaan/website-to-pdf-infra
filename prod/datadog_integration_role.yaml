@@ -1,0 +1,225 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM role for Datadog AWS Integration
+Parameters:
+  ExternalId:
+    Description: >-
+      External ID for the Datadog role (generate at
+      https://app.datadoghq.com/account/settings#integrations/amazon-web-services)
+    Type: String
+  IAMRoleName:
+    Description: Customize the name of IAM role for Datadog AWS integration
+    Type: String
+    Default: DatadogIntegrationRole
+  BasePermissions:
+    Description: >-
+      Customize the base permissions for the Datadog IAM role.
+      Select "Core" to only grant Datadog permissions to a very limited set of metrics and metadata (not recommended).
+    Type: String
+    Default: Full
+    AllowedValues:
+      - Full
+      - Core
+  LogArchives:
+    Description: >-
+      S3 paths to store log archives for log rehydration. Separate multiple paths with comma,
+      e.g., "my-bucket,my-bucket-with-path/path".
+    Type: String
+    Default: ''
+  CloudTrails:
+    Description: >-
+      S3 buckets for the Datadog CloudTrail integration. Separate multiple buckets with commas,
+      e.g., "bucket1,bucket2". Permissions will be automatically added to the Datadog integration IAM role.
+      https://docs.datadoghq.com/integrations/amazon_cloudtrail/
+    Type: String
+    Default: ''
+  CloudSecurityPostureManagementPermissions:
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+    Description: >-
+      Set this value to "true" to add permissions for Datadog's Cloud Security Posture Management product
+      to monitor your AWS cloud resource configurations.
+      You need this set to "true" to use Cloud Security Posture Management. You will also need "BasePermissions" set to "Full".
+  DdAWSAccountId:
+    Description: >-
+      Datadog AWS account ID allowed to assume the integration IAM role. DO NOT CHANGE!
+    Type: String
+    Default: '464622532012'
+Conditions:
+  GrantFullPermissions:
+    Fn::Equals:
+      - Ref: BasePermissions
+      - Full
+  ShouldInstallCSPMPolicy:
+    Fn::Equals:
+      - Ref: CloudSecurityPostureManagementPermissions
+      - true
+Resources:
+  DatadogIntegrationRole:
+    Type: 'AWS::IAM::Role'
+    Metadata:
+      cfn-lint:
+        config:
+          # cfn-lint does not yet support "Fn::Transform"
+          ignore_checks:
+            - E3002
+            - E3003
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub
+                - 'arn:aws:iam::${DdAWSAccountId}:root'
+                - { DdAWSAccountId: !Ref DdAWSAccountId }
+            Action:
+              - 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref ExternalId
+      Path: /
+      RoleName: !Ref IAMRoleName
+      ManagedPolicyArns:
+        !If [
+          ShouldInstallCSPMPolicy,
+          ['arn:aws:iam::aws:policy/SecurityAudit'],
+          !Ref AWS::NoValue,
+        ]
+      Policies:
+        - PolicyName: DatadogAWSIntegrationPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - !If
+                - GrantFullPermissions
+                - Effect: Allow
+                  Resource: '*'
+                  Action:
+                    - 'apigateway:GET'
+                    - 'autoscaling:Describe*'
+                    - 'backup:List*'
+                    - 'bcm-data-exports:GetExport'
+                    - 'bcm-data-exports:ListExports'
+                    - 'budgets:ViewBudget'
+                    - 'cloudfront:GetDistributionConfig'
+                    - 'cloudfront:ListDistributions'
+                    - 'cloudtrail:DescribeTrails'
+                    - 'cloudtrail:GetTrailStatus'
+                    - 'cloudtrail:LookupEvents'
+                    - 'cloudwatch:Describe*'
+                    - 'cloudwatch:Get*'
+                    - 'cloudwatch:List*'
+                    - 'codedeploy:BatchGet*'
+                    - 'codedeploy:List*'
+                    - 'cur:DescribeReportDefinitions'
+                    - 'directconnect:Describe*'
+                    - 'dynamodb:Describe*'
+                    - 'dynamodb:List*'
+                    - 'ec2:Describe*'
+                    - 'ec2:GetTransitGatewayPrefixListReferences'
+                    - 'ec2:SearchTransitGatewayRoutes'
+                    - 'ecs:Describe*'
+                    - 'ecs:List*'
+                    - 'elasticache:Describe*'
+                    - 'elasticache:List*'
+                    - 'elasticfilesystem:DescribeAccessPoints'
+                    - 'elasticfilesystem:DescribeFileSystems'
+                    - 'elasticfilesystem:DescribeTags'
+                    - 'elasticloadbalancing:Describe*'
+                    - 'elasticmapreduce:Describe*'
+                    - 'elasticmapreduce:List*'
+                    - 'es:DescribeElasticsearchDomains'
+                    - 'es:ListDomainNames'
+                    - 'es:ListTags'
+                    - 'events:CreateEventBus'
+                    - 'fsx:DescribeFileSystems'
+                    - 'fsx:ListTagsForResource'
+                    - 'health:DescribeAffectedEntities'
+                    - 'health:DescribeEventDetails'
+                    - 'health:DescribeEvents'
+                    - 'kinesis:Describe*'
+                    - 'kinesis:List*'
+                    - 'lambda:GetPolicy'
+                    - 'lambda:List*'
+                    - 'logs:DeleteSubscriptionFilter'
+                    - 'logs:DescribeLogGroups'
+                    - 'logs:DescribeLogStreams'
+                    - 'logs:DescribeSubscriptionFilters'
+                    - 'logs:FilterLogEvents'
+                    - 'logs:PutSubscriptionFilter'
+                    - 'logs:TestMetricFilter'
+                    - 'oam:ListAttachedLinks'
+                    - 'oam:ListSinks'
+                    - 'organizations:Describe*'
+                    - 'organizations:List*'
+                    - 'rds:Describe*'
+                    - 'rds:List*'
+                    - 'redshift:DescribeClusters'
+                    - 'redshift:DescribeLoggingStatus'
+                    - 'route53:List*'
+                    - 's3:GetBucketLocation'
+                    - 's3:GetBucketLogging'
+                    - 's3:GetBucketNotification'
+                    - 's3:GetBucketTagging'
+                    - 's3:ListAllMyBuckets'
+                    - 's3:PutBucketNotification'
+                    # For S3 Directory Buckets, the s3 calls are with the s3express prefix
+                    # https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazons3express.html
+                    - 's3express:GetBucketPolicy'
+                    - 's3express:GetEncryptionConfiguration'
+                    - 's3express:ListAllMyDirectoryBuckets'
+                    - 'ses:Get*'
+                    - 'secretsmanager:GetResourcePolicy'
+                    - 'sns:GetSubscriptionAttributes'
+                    - 'sns:List*'
+                    - 'sns:Publish'
+                    - 'sqs:ListQueues'
+                    - 'states:DescribeStateMachine'
+                    - 'states:ListStateMachines'
+                    - 'support:DescribeTrustedAdvisor*'
+                    - 'support:RefreshTrustedAdvisorCheck'
+                    - 'tag:GetResources'
+                    - 'tag:GetTagKeys'
+                    - 'tag:GetTagValues'
+                    - 'wafv2:GetLoggingConfiguration'
+                    - 'wafv2:ListLoggingConfigurations'
+                    - 'xray:BatchGetTraces'
+                    - 'xray:GetTraceSummaries'
+                - Effect: Allow
+                  Resource: '*'
+                  Action:
+                    - 'cloudwatch:Get*'
+                    - 'cloudwatch:List*'
+                    - 'ec2:Describe*'
+                    - 'tag:GetResources'
+                    - 'tag:GetTagKeys'
+                    - 'tag:GetTagValues'
+                    #removed both Transform blocks to correct error
+        # - Fn::Transform:
+        #     - Name: 'DatadogPolicy'
+        #       Parameters:
+        #         PolicyType: LogArchive
+        #         LogArchives: !Ref LogArchives
+        # - Fn::Transform:
+        #     - Name: 'DatadogPolicy'
+        #       Parameters:
+        #         PolicyType: CloudTrail
+        #         CloudTrails: !Ref CloudTrails
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required
+        Parameters:
+          - ExternalId
+          - IAMRoleName
+          - BasePermissions
+      - Label:
+          default: Optional
+        Parameters:
+          - LogArchives
+          - CloudTrails
+          - CloudSecurityPostureManagementPermissions
