@@ -20,3 +20,12 @@ resource "aws_ssm_parameter" "save_name_of_s3_for_output_files_to_ssm" {
   type        = "SecureString"
   value       = "${var.tag_env}-app-output-files-${data.aws_caller_identity.current.account_id}"
 }
+
+# Created an S3 bucket to store the Datadog integration role template
+resource "aws_s3_object" "datadog_integration_role_template" {
+  bucket       = module.s3_bucket_for_output_files.s3_bucket_id
+  key          = "datadog_integration_role.yaml"
+  source       = "${path.module}/datadog_integration_role.yaml"
+  acl          = "private"
+  content_type = "text/yaml"
+}
