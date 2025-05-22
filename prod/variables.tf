@@ -51,10 +51,3 @@ variable "cd_project_repo" {
   type    = string
   description = "argo CD project repo"
 }
-
-# Added datadog_external_id variable
-# This variable is used to set the External ID for the Datadog AWS integration role
-variable "datadog_external_id" {
-  type        = string
-  description = "External ID for the Datadog AWS integration role"
-}
