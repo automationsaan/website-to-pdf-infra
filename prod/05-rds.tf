@@ -11,7 +11,7 @@ module "rds" {
   #engine_mode          = "serverless"         #"serverless"
   engine_mode          = "provisioned"         #updated to "provisioned" to use Aurora Serverless v2, v1 is not available in us-west-2
   cluster_family = "aurora-mysql8.0"   # <-- Change from "aurora-mysql5.7"
-  cluster_size         = 0                    #0
+  cluster_size         = 1                    #changed from 0 to 1
   cluster_type         = "regional"           #"regional"
   admin_user           = random_password.rds_admin_username.result
   admin_password       = random_password.rds_password.result
