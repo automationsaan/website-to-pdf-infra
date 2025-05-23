@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # Project overview
 
-Put your DevOps skills to the test with our hands-on capstone project. Designed for anyone interested in gaining practical experience, this project challenges you to integrate AWS, Terraform, Kubernetes, GitHub Actions, ArgoCD, Datadog, and PagerDuty to build and manage a production-like environment. Showcase your ability to create a complete, real-world solution by building cloud infrastructure, implementing observability, developing CI/CD pipelines, and managing incidents.
+Put your DevOps skills to the test with our hands-on capstone project. Designed for anyone interested in gaining practical experience, this project challenges you to integrate AWS, Terraform, Kubernetes, GitHub Actions, ArgoCD, Datadog, and PagerDuty to build and manage a production-like environment. Other technologies and services you'll integrate and work with in this project: Aurora RDS, DynamoDB, AWS EKS, AWS Secret Manager, AWS Route 53, lambda, Helm charts, Git and GitHub, bastion host, SQS, and OpenLens. Showcase your ability to create a complete, real-world solution by building cloud infrastructure, implementing observability, developing CI/CD pipelines, and managing incidents.
 
 # Main goal
 
