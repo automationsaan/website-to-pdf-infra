@@ -20,7 +20,7 @@ graph TD
     SQS[SQS Queue]
     Lambda[Lambda Function]
     Bastion[Bastion Host (EC2)]
-    Route53[Route 53 DNS]
+    Route53["Route 53 DNS"]
     ACM[ACM Certificate]
     ECR[ECR Registry]
     SSM[SSM Parameters]
