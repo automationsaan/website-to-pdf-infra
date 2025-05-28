@@ -9,73 +9,40 @@ Gain practical Infrastructure as code (IaC) skills. Learn how to deploy such app
 
 # Infrastructure Diagram
 
-```mermaid
-graph TD
-  subgraph AWS
-    VPC[VPC]
-    EKS[EKS Cluster]
-    RDS[Aurora RDS Cluster]
-    DynamoDB[DynamoDB Table]
-    S3[S3 Bucket for Output Files]
-    SQS[SQS Queue]
-    Lambda[Lambda Function]
-    Bastion[Bastion Host (EC2)]
-    Route53["Route 53 DNS"]
-    ACM[ACM Certificate]
-    ECR[ECR Registry]
-    SSM[SSM Parameters]
-    LB[Load Balancer]
-  end
+```
++------------------- AWS Cloud -------------------+
+|                                                 |
+|  +---------+    +---------+    +-------------+  |
+|  |  VPC    |--->|  EKS    |--->| Kubernetes  |  |
+|  +---------+    +---------+    +-------------+  |
+|      |             |                |            |
+|      v             v                v            |
+|  +--------+   +---------+   +--------------+     |
+|  |  RDS   |   | Dynamo  |   |   S3 Bucket  |     |
+|  +--------+   +---------+   +--------------+     |
+|      |             |                |            |
+|  +--------+   +---------+   +--------------+     |
+|  |  SQS   |   | Lambda  |   | Bastion Host |     |
+|  +--------+   +---------+   +--------------+     |
+|      |             |                |            |
+|  +--------+   +---------+   +--------------+     |
+|  | Route53|   |  ACM    |   |   ECR        |     |
+|  +--------+   +---------+   +--------------+     |
+|      |             |                |            |
+|  +--------+   +---------+   +--------------+     |
+|  |  SSM   |   |   LB    |   |                |   |
+|  +--------+   +---------+   +----------------+   |
++--------------------------------------------------+
 
-  subgraph Kubernetes
-    ArgoCD[ArgoCD]
-    NGINX[Ingress NGINX]
-    CertManager[Cert Manager]
-    DatadogAgent[Datadog Agent]
-    ARC[Actions Runner Controller]
-    AppNamespace[Application Namespace]
-  end
++---------------- Kubernetes Cluster --------------+
+|  ArgoCD | Ingress NGINX | Cert Manager |         |
+|  Datadog Agent | Actions Runner Controller       |
+|  Application Namespace                          |
++--------------------------------------------------+
 
-  subgraph CI/CD
-    GitHub[GitHub Actions]
-    GitHubRepo[GitHub Repo]
-  end
-
-  subgraph Monitoring
-    Datadog[Datadog]
-    PagerDuty[PagerDuty]
-  end
-
-  VPC --> EKS
-  VPC --> Bastion
-  VPC --> RDS
-  VPC --> DynamoDB
-  VPC --> S3
-  VPC --> SQS
-  VPC --> Lambda
-  VPC --> LB
-  EKS -->|Deploys| ArgoCD
-  EKS --> NGINX
-  EKS --> CertManager
-  EKS --> DatadogAgent
-  EKS --> ARC
-  EKS --> AppNamespace
-  LB --> NGINX
-  Route53 --> ACM
-  Route53 --> LB
-  ACM --> LB
-  Bastion --> EKS
-  GitHub --> GitHubRepo
-  GitHub --> ARC
-  ARC --> AppNamespace
-  ArgoCD --> AppNamespace
-  DatadogAgent --> Datadog
-  Lambda --> S3
-  Lambda --> SQS
-  Lambda --> DynamoDB
-  Datadog --> PagerDuty
-  SSM --> Lambda
-  ECR --> EKS
++------------------- CI/CD & Monitoring -----------+
+|  GitHub Actions | GitHub Repo | Datadog | PagerDuty |
++--------------------------------------------------+
 ```
 
 # Requirements and tools
