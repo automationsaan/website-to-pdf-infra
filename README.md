@@ -7,6 +7,77 @@ Put your DevOps skills to the test with our hands-on capstone project. Designed 
 
 Gain practical Infrastructure as code (IaC) skills. Learn how to deploy such applications in the cloud cluster.
 
+# Infrastructure Diagram
+
+```mermaid
+graph TD
+  subgraph AWS
+    VPC[VPC]
+    EKS[EKS Cluster]
+    RDS[Aurora RDS Cluster]
+    DynamoDB[DynamoDB Table]
+    S3[S3 Bucket for Output Files]
+    SQS[SQS Queue]
+    Lambda[Lambda Function]
+    Bastion[Bastion Host (EC2)]
+    Route53[Route 53 DNS]
+    ACM[ACM Certificate]
+    ECR[ECR Registry]
+    SSM[SSM Parameters]
+    LB[Load Balancer]
+  end
+
+  subgraph Kubernetes
+    ArgoCD[ArgoCD]
+    NGINX[Ingress NGINX]
+    CertManager[Cert Manager]
+    DatadogAgent[Datadog Agent]
+    ARC[Actions Runner Controller]
+    AppNamespace[Application Namespace]
+  end
+
+  subgraph CI/CD
+    GitHub[GitHub Actions]
+    GitHubRepo[GitHub Repo]
+  end
+
+  subgraph Monitoring
+    Datadog[Datadog]
+    PagerDuty[PagerDuty]
+  end
+
+  VPC -->|Subnets| EKS
+  VPC --> Bastion
+  VPC --> RDS
+  VPC --> DynamoDB
+  VPC --> S3
+  VPC --> SQS
+  VPC --> Lambda
+  VPC --> LB
+  EKS -->|Deploys| ArgoCD
+  EKS --> NGINX
+  EKS --> CertManager
+  EKS --> DatadogAgent
+  EKS --> ARC
+  EKS --> AppNamespace
+  LB --> NGINX
+  Route53 --> ACM
+  Route53 --> LB
+  ACM --> LB
+  Bastion --> EKS
+  GitHub --> GitHubRepo
+  GitHub --> ARC
+  ARC --> AppNamespace
+  ArgoCD --> AppNamespace
+  DatadogAgent --> Datadog
+  Lambda --> S3
+  Lambda --> SQS
+  Lambda --> DynamoDB
+  Datadog --> PagerDuty
+  SSM --> Lambda
+  ECR --> EKS
+```
+
 # Requirements and tools
 
 1. Terraform cli (https://developer.hashicorp.com/terraform/install)
