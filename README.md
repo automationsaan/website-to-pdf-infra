@@ -46,7 +46,7 @@ graph TD
     PagerDuty[PagerDuty]
   end
 
-  VPC -->|Subnets| EKS
+  VPC --> EKS
   VPC --> Bastion
   VPC --> RDS
   VPC --> DynamoDB
